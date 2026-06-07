@@ -1,0 +1,25 @@
+# Environment Variables (Crucial for security)
+.env
+*.env
+.env.*
+
+# Go Workspaces State (Machine-specific caching)
+go.work.sum
+
+# Compiled Binaries / Executables
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+__debug_bin
+bin/
+
+# IDE and Editor Configurations
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
