@@ -68,7 +68,6 @@ func main() {
 
 	// Wrap your router with the middleware
 	wrappedMux := LoggingMiddleware(handler)
-	// wrappedMux = AuthenticationMiddleware(wrappedMux)
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "Welcome to the Golang Server")
@@ -83,7 +82,12 @@ func main() {
 
 	r.HandleFunc("/api/v1/users/register", userController.RegisterUsers).Methods("POST")
 	r.HandleFunc("/api/v1/users/login", userController.Login).Methods("POST")
-	r.HandleFunc("/api/v1/blog/create", blogController.CreateBlog).Methods("POST")
+
+	// create protected routes
+	protected := r.PathPrefix("/api/v1").Subrouter()
+	protected.Use(AuthenticationMiddleware)
+
+	protected.HandleFunc("/blog/create", blogController.CreateBlog).Methods("POST")
 
 	fmt.Println("Server starting on port :8080...")
 

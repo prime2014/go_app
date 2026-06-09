@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	contextkeys "contextKeys"
 	"fmt"
 	"log"
 	"net/http"
@@ -33,10 +34,6 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		log.Printf("Completed %s %s in %v", r.Method, r.URL.Path, time.Since(start))
 	})
 }
-
-type contextKey string
-
-const UserIDKey contextKey = "userID"
 
 func AuthenticationMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +67,7 @@ func AuthenticationMiddleware(next http.Handler) http.Handler {
 
 		//4. OPTIONAL: Inject your metadata into the request context
 		// This makes the logged in User ID available to any route handlers
-		ctx := context.WithValue(r.Context(), UserIDKey, userID)
+		ctx := context.WithValue(r.Context(), contextkeys.UserIDKey, userID)
 
 		// 5. Pass control to the next handler using the enrichec context
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -103,6 +100,7 @@ func validateYourTokenString(tokenString string) (uint, error) {
 
 	// Extract claims and validate validity
 	if claims, ok := token.Claims.(*MyCustomClaims); ok && token.Valid {
+
 		return claims.UserID, nil
 	}
 

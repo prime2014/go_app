@@ -1,40 +1,42 @@
 package accounts
 
 import (
+	"blogs"
 	"crypto/rand"
 	"encoding/base64"
+	"errors"
 	"fmt"
+	"strings"
 	"time"
+
 	"golang.org/x/crypto/argon2"
 	"gorm.io/gorm"
-	"errors"
-	"strings"
 )
 
 // The parameters to use in argon2
 type params struct {
-	memory uint32
-	iterations uint32
+	memory      uint32
+	iterations  uint32
 	parallelism uint8
-	saltLength uint32
-	keyLength uint32
+	saltLength  uint32
+	keyLength   uint32
 }
-
 
 type Users struct {
-	ID        uint           `json:"id" gorm:"primaryKey"`
-	Firstname string         `json:"firstname" validate:"required"`
-	Lastname  *string         `json:"lastname" validate:"required"`
-	Email     string         `json:"email" validate:"required,email" gorm:"unique;not null;index"`
-	Password  string         `json:"password,omitempty" validate:"required"`
-	PasswordResetToken *string  `json:"password_reset_token,omitempty"`
-	PasswordResetExpiry *time.Time ` json:"password_reset_expiry,omitempty"`
-	IsActive  bool           `json:"is_active" gorm:"default:false"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"` // Useful for soft-deletes
-}
+	ID                  uint           `json:"id" gorm:"primaryKey"`
+	Firstname           string         `json:"firstname" validate:"required"`
+	Lastname            *string        `json:"lastname" validate:"required"`
+	Email               string         `json:"email" validate:"required,email" gorm:"unique;not null;index"`
+	Password            string         `json:"password,omitempty" validate:"required"`
+	PasswordResetToken  *string        `json:"password_reset_token,omitempty"`
+	PasswordResetExpiry *time.Time     ` json:"password_reset_expiry,omitempty"`
+	IsActive            bool           `json:"is_active" gorm:"default:false"`
+	CreatedAt           time.Time      `json:"created_at"`
+	UpdatedAt           time.Time      `json:"updated_at"`
+	DeletedAt           gorm.DeletedAt `json:"-" gorm:"index"` // Useful for soft-deletes
 
+	Blogs []blogs.Blogs `json:"blogs" gorm:"foreignKey:UserID;constraint:OnDelete:'CASCADE';"`
+}
 
 func generateFromPassword(password string, p *params) (string, error) {
 	// Generate a cryptographically secure random salt.
@@ -51,12 +53,10 @@ func generateFromPassword(password string, p *params) (string, error) {
 	b64Hash := base64.RawStdEncoding.EncodeToString(hash)
 
 	encoded := fmt.Sprintf("$argon2id$v=%d$m=%d,t=%d,p=%d$%s$%s",
-			       argon2.Version, p.memory, p.iterations, p.parallelism, b64Salt, b64Hash)
-
+		argon2.Version, p.memory, p.iterations, p.parallelism, b64Salt, b64Hash)
 
 	return encoded, nil
 }
-
 
 func generateRandomBytes(n uint32) ([]byte, error) {
 	b := make([]byte, n)
@@ -68,14 +68,13 @@ func generateRandomBytes(n uint32) ([]byte, error) {
 	return b, nil
 }
 
-
 func (u *Users) BeforeCreate(tx *gorm.DB) (err error) {
 	p := &params{
-		memory: 64 * 1024,
-		iterations: 3,
+		memory:      64 * 1024,
+		iterations:  3,
 		parallelism: 2,
-		saltLength: 16,
-		keyLength: 32,
+		saltLength:  16,
+		keyLength:   32,
 	}
 
 	// Clean up string spaces and check if empty instead of nil

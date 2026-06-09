@@ -6,10 +6,11 @@ type BlogServices struct {
 	Db *gorm.DB
 }
 
-func (b *BlogServices) Create(blogDto BlogDto) (*Blogs, error) {
+func (b *BlogServices) Create(blogDto BlogDto, userID uint) (*Blogs, error) {
 	blog := &Blogs{
 		Title:   blogDto.Title,
 		Article: blogDto.Article,
+		UserID:  userID,
 	}
 
 	result := b.Db.Create(blog)

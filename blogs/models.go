@@ -3,6 +3,7 @@ package blogs
 import (
 	"time"
 
+	"github.com/gosimple/slug"
 	"gorm.io/gorm"
 )
 
@@ -18,6 +19,8 @@ const (
 type Blogs struct {
 	ID      uint   `json:"id" gorm:"primaryKey"`
 	Title   string `json:"title" gorm:"size:100"`
+	Slug    string `json:"slug" gorm:"size:100"`
+	UserID  uint   `json:"user_id"`
 	Article string `json:"article" gorm:"type:text;not null"`
 
 	Status BlogStatus `json:"status" gorm:"type:varchar(20);default:'draft';not null;index"`
@@ -29,6 +32,11 @@ type Blogs struct {
 	DeletedAt gorm.DeletedAt `json:"-"`
 
 	Images []BlogImages `json:"images" gorm:"foreignKey:BlogID;constraint:OnDelete:CASCADE;"`
+}
+
+func (b *Blogs) BeforeCreate(tx *gorm.DB) (err error) {
+	b.Slug = slug.Make(b.Title)
+	return nil
 }
 
 type BlogImages struct {
