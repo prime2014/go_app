@@ -1,6 +1,7 @@
 package blogs
 
 import (
+	"comments"
 	"time"
 
 	"github.com/gosimple/slug"
@@ -31,7 +32,8 @@ type Blogs struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-"`
 
-	Images []BlogImages `json:"images" gorm:"foreignKey:BlogID;constraint:OnDelete:CASCADE;"`
+	Images   []BlogImages        `json:"images" gorm:"foreignKey:BlogID;constraint:OnDelete:CASCADE;"`
+	Comments []comments.Comments `json:"comments" gorm:"foreignKey:BlogID;constraint:OnDelete:CASCADE;"`
 }
 
 func (b *Blogs) BeforeCreate(tx *gorm.DB) (err error) {

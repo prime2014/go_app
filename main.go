@@ -3,6 +3,7 @@ package main
 import (
 	"accounts"
 	"blogs"
+	"comments"
 	"fmt"
 	"log"
 	"net/http"
@@ -48,6 +49,7 @@ func main() {
 	db.AutoMigrate(&accounts.Users{})
 	db.AutoMigrate(&blogs.Blogs{})
 	db.AutoMigrate(&blogs.BlogImages{})
+	db.AutoMigrate(&comments.Comments{})
 
 	// Configure global log settings once at application startup
 	log.SetOutput(os.Stdout)
@@ -80,6 +82,9 @@ func main() {
 	blogService := blogs.BlogServices{Db: db}
 	blogController := blogs.BlogController{Service: blogService}
 
+	commentService := comments.CommentService{Db: db}
+	commentController := comments.CommentController{Service: commentService}
+
 	r.HandleFunc("/api/v1/users/register", userController.RegisterUsers).Methods("POST")
 	r.HandleFunc("/api/v1/users/login", userController.Login).Methods("POST")
 
@@ -88,6 +93,7 @@ func main() {
 	protected.Use(AuthenticationMiddleware)
 
 	protected.HandleFunc("/blog/create", blogController.CreateBlog).Methods("POST")
+	protected.HandleFunc("/comment/{blogId}/blog", commentController.CreateComment).Methods("POST")
 
 	fmt.Println("Server starting on port :8080...")
 

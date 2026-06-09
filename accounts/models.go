@@ -2,6 +2,7 @@ package accounts
 
 import (
 	"blogs"
+	"comments"
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
@@ -35,7 +36,9 @@ type Users struct {
 	UpdatedAt           time.Time      `json:"updated_at"`
 	DeletedAt           gorm.DeletedAt `json:"-" gorm:"index"` // Useful for soft-deletes
 
-	Blogs []blogs.Blogs `json:"blogs" gorm:"foreignKey:UserID;constraint:OnDelete:'CASCADE';"`
+	Blogs []blogs.Blogs `json:"blogs" gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
+
+	Comments []comments.Comments `json:"comments" gorm:"foreignKey:AuthorID;constraint:OnDelete:CASCADE;"`
 }
 
 func generateFromPassword(password string, p *params) (string, error) {
