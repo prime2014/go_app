@@ -30,7 +30,7 @@ type Users struct {
 	Email               string         `json:"email" validate:"required,email" gorm:"unique;not null;index"`
 	Password            string         `json:"password,omitempty" validate:"required"`
 	PasswordResetToken  *string        `json:"password_reset_token,omitempty"`
-	PasswordResetExpiry *time.Time     ` json:"password_reset_expiry,omitempty"`
+	PasswordResetExpiry *time.Time     `json:"password_reset_expiry,omitempty"`
 	IsActive            bool           `json:"is_active" gorm:"default:false"`
 	CreatedAt           time.Time      `json:"created_at"`
 	UpdatedAt           time.Time      `json:"updated_at"`

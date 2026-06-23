@@ -22,3 +22,24 @@ func (b *BlogServices) Create(blogDto BlogDto, userID uint) (*Blogs, error) {
 	return blog, nil
 
 }
+
+func (b *BlogServices) Edit(blogDto EditBlogDto, userID uint, blogID uint) (*Blogs, error) {
+	var blog Blogs
+	result := b.Db.First(&blog, blogID)
+
+	if result.Error != nil {
+		return &Blogs{}, result.Error
+	}
+
+	if blogDto.Title != nil {
+		blog.Title = *blogDto.Title
+	}
+
+	if blogDto.Article != nil {
+		blog.Article = *blogDto.Article
+	}
+
+	b.Db.Save(&blog)
+
+	return &blog, nil
+}
